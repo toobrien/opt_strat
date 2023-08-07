@@ -1,3 +1,4 @@
+from ast    import literal_eval
 from util   import get_expirations, get_records_by_contract
 from sys    import argv
 from time   import time
@@ -18,17 +19,20 @@ def get_expirations_test(
     symbol: str,
     start:  str,
     end:    str,
-    type:   str,
-    rule:   str,
-    months: str
+    kind:   str,
+    rule:   str
 ):
 
     res     = get_records_by_contract(symbol, start, end)
-    months  = int(months)
+    rule    = literal_eval(rule)
 
+    print(rule)
+    
     for id, recs in res.items():
 
-        res = get_expirations(recs, type, rule, months)
+        exps = get_expirations(recs, kind, rule)
+
+        print(f"{id}: {' '.join(exps)}")
 
     pass
 

@@ -1,8 +1,9 @@
 from    datetime                import  datetime, timedelta
+from    dateutil.relativedelta  import  FR, relativedelta
 from    enum                    import  IntEnum
 from    json                    import  loads
-import  plotly.graph_objects    as      go
-from    plotly.subplots         import  make_subplots
+from    pandas                  import  date_range, DateOffset, Timestamp
+from    pandas.tseries.offsets  import  BDay, BusinessMonthEnd, LastWeekOfMonth, WeekOfMonth
 import  polars                  as      pl
 from    sys                     import  argv
 from    time                    import  time
@@ -14,15 +15,15 @@ DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
 EXPIRATIONS = {
     "NG": { 
-        "M": ( "-4B",   1 )
+        "M": ( -1, "EXP", 1 )
     },
     "CL": {
-        "M": ( "-3E",   1 ),
-        "W": ( "MWF",   1 )
+        "M": ( -3, "EXP", 1 ),
+        "W": ( "MWF", 1 )
     },
     "ZN": {
-        "M": ( "-1F",   3 ),
-        "W": ( "WF",    3 ),
+        "M": ( -1, "FRI", 3 ),
+        "W": ( "WF", 3 ),
     }
 }
 MONTHS      = {
@@ -38,6 +39,13 @@ MONTHS      = {
     10: "V",
     11: "X",
     12: "Z"
+}
+DAYS_OF_WEEK = {
+    "M": 0,
+    "T": 1,
+    "W": 2,
+    "H": 3,
+    "F": 4
 }
 
 
@@ -63,16 +71,78 @@ def get_monthly_series(
 
 def get_expirations(
     recs:   List[base_rec], 
-    type:   str,
-    rule:   str,
-    months: int
+    kind:   str,
+    rule:   str
 ):
 
-    dates    = [ rec[base_rec.date] for rec in recs ]
-    dte      = [ rec[base_rec.dte] for rec in recs ]
-    last_day = datetime.strptime(dates[0], DATE_FMT) + timedelta(days = dte[0])
+    res     = []
+    dates   = [ rec[base_rec.date] for rec in recs ]
+    dte     = [ rec[base_rec.dte] for rec in recs ]
+    ul_exp  = Timestamp(dates[0]) + DateOffset(days = dte[0])
 
-    pass
+    if kind == "M":
+
+        offset      = rule[0]
+        relative_to = rule[1]
+        months      = rule[2]
+
+        if relative_to == "EOM":
+
+            # business days prior to end of month
+
+            pass
+
+        elif relative_to == "EXP":
+
+            # business days prior to underlying expiration
+
+            while months > 0:
+
+                res.append((ul_exp - offset * BDay()).strftime(DATE_FMT))
+
+                months -= 1
+
+        elif relative_to == "FRI":
+
+            # friday of month
+
+            exp = ul_exp + relativedelta(day = 31, weekday = FR(-1))
+
+            while months > 0:
+
+                while not BDay().onOffset(exp):
+
+                    exp -= BDay()
+
+                res.append(exp.strftime(DATE_FMT))
+            
+                exp += DateOffset(months = 1)
+                exp += relativedelta(day = 31, weekday = FR(-1))
+
+                months  -= 1
+
+    elif kind == "W":
+
+        days    = [ DAYS_OF_WEEK[day] for day in rule[0] ]
+        months  = rule[1]
+        exp     = ul_exp
+        month   = ul_exp.month
+
+        while months > 0:
+
+            if exp.weekday() in days:
+
+                res.append(exp)
+
+                exp -= BDay()
+
+                if exp.month != month:
+
+                    month = ul_exp.month
+
+                    months -= 1
+
+    return res
 
 
 def get_records_by_contract(
