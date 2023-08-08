@@ -1,12 +1,10 @@
-from    datetime                import  datetime, timedelta
+from    datetime                import  datetime
 from    dateutil.relativedelta  import  FR, relativedelta
 from    enum                    import  IntEnum
 from    json                    import  loads
 from    pandas                  import  date_range, DateOffset, Timestamp
-from    pandas.tseries.offsets  import  BDay, BusinessMonthEnd, LastWeekOfMonth, WeekOfMonth
+from    pandas.tseries.offsets  import  BDay, MonthEnd
 import  polars                  as      pl
-from    sys                     import  argv
-from    time                    import  time
 from    typing                  import  List
 
 
@@ -89,8 +87,16 @@ def get_expirations(
         if relative_to == "EOM":
 
             # business days prior to end of month
+            # assumes offset is negative
 
-            pass
+            while months > 0:
+
+                exp = ul_exp + MonthEnd(0)
+                exp = exp + (offset + 1) * BDay() if BDay().is_on_offset(exp) else exp + offset * BDay()
+
+                res.append(exp)
+
+                months -= 1
 
         elif relative_to == "EXP":
 
@@ -98,7 +104,7 @@ def get_expirations(
 
             while months > 0:
 
-                res.append((ul_exp - offset * BDay()).strftime(DATE_FMT))
+                res.append((ul_exp + offset * BDay()).strftime(DATE_FMT))
 
                 months -= 1
 
