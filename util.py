@@ -80,7 +80,6 @@ def get_expirations(
     ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
     bom         = ul_exp + MonthBegin(-1)
     eom         = ul_exp + MonthEnd(0)
-    b_eom       = ul_exp + BMonthEnd(0)
     r_name      = rule[0] 
     serial      = rule[1]
 
