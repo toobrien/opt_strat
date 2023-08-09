@@ -20,7 +20,7 @@ EXPIRATIONS = {
         "W": ( "MWF", 1 )
     },
     "ZN": {
-        "M": ( "-2BD-1FRI", 3 ),
+        "M": ( "EOM-2BD-1FRI", 3 ),
         "W": ( "WF", 3 ),
     }
 }
@@ -89,15 +89,19 @@ def get_expirations(
 
             if r_name == "UL_EXP-1BD":
 
+                # one business day prior to the underlying contract's expiration
+
                 res.append(ul_exp - BDay())
 
             elif r_name == "EOM-4BD":
                 
-                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
+                # fourth last business day of the month
+
+                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4] 
 
                 res.append(exp)
             
-            elif r_name == "-2BD-1FRI":
+            elif r_name == "EOM-2BD-1FRI":
 
                 # first friday prior to the second to last business day of the month;
                 # if this is not a business day, then the day prior
@@ -108,20 +112,53 @@ def get_expirations(
 
                 res.append(exp)
 
-            elif r_name == "25th-(6|7)BD":
+            elif r_name == "25TH-(6|7)BD":
+
+                # the 6th day prior to the 25th calendar day of the month, if business day; else, the 7th day prior
 
                 exp = bom + DateOffset(days = 24) - 6 * BDay()
                 exp = exp if BDay().is_on_offset(exp) else exp - BDay()
 
-            elif r_name == "10BD":
+            elif r_name == "BOM+10BD":
+
+                # tenth business day of the month
 
                 exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[10]
 
                 res.append(exp)
 
-            elif r_name == "1FRI":
+            elif r_name == "BOM+1FRI":
+
+                # first friday of month
 
                 exp = date_range(bom, eom, freq = "W-FRI")[1]
+
+                res.append(exp)
+
+            elif r_name == "EOM-(1|2)THU":
+
+                # last thursday of month if business day; else 2nd last thursday
+
+                rng = date_range(bom, eom, freq = "W-THU")
+                exp = date_range[-1] if BDay().is_on_offset(date_range[-1]) else date_range[-2]
+
+                res.append(exp)
+
+            elif r_name == "EOM-(4|5)BD":
+
+                # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
+
+                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
+                exp = exp if exp.day_of_week == 4 else exp - BDay()
+
+                res.append(exp)
+
+            elif r_name == "BOM+2FRI<3WED":
+
+                # 2nd friday of the month prior to the 3rd wednesday of the month
+
+                third_wed   = date_range(bom, eom, freq = "W-WED")[2]
+                exp         = date_range(bom, third_wed, freq = "W-FRI")[-2]
 
                 res.append(exp)
 
