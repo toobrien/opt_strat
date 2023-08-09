@@ -1,9 +1,9 @@
 from    datetime                import  datetime
-from    dateutil.relativedelta  import  FR, relativedelta
 from    enum                    import  IntEnum
 from    json                    import  loads
-from    pandas                  import  date_range, DateOffset, Timestamp
-from    pandas.tseries.offsets  import  BDay, MonthEnd
+from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
+from    pandas.tseries.holiday  import  USFederalHolidayCalendar
+from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
 import  polars                  as      pl
 from    typing                  import  List
 
@@ -13,14 +13,14 @@ DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
 EXPIRATIONS = {
     "NG": { 
-        "M": ( -1, "EXP", 1 )
+        "M": ( "UL_EXP-1BD", 1 )
     },
     "CL": {
-        "M": ( -3, "EXP", 1 ),
+        "M": ( "UL_EXP-1BD", 1 ),
         "W": ( "MWF", 1 )
     },
     "ZN": {
-        "M": ( -1, "FRI", 3 ),
+        "M": ( "-2BD-1FRI", 3 ),
         "W": ( "WF", 3 ),
     }
 }
@@ -45,6 +45,7 @@ DAYS_OF_WEEK = {
     "H": 3,
     "F": 4
 }
+HOLIDAYS = USFederalHolidayCalendar.holidays(start = "1900-01-01", end = "2100-01-01")
 
 
 class base_rec(IntEnum):
@@ -68,85 +69,70 @@ def get_monthly_series(
 
 
 def get_expirations(
-    recs:   List[base_rec], 
+    recs:   List[base_rec],
     kind:   str,
     rule:   str
 ):
 
-    res     = []
-    dates   = [ rec[base_rec.date] for rec in recs ]
-    dte     = [ rec[base_rec.dte] for rec in recs ]
-    ul_exp  = Timestamp(dates[0]) + DateOffset(days = dte[0])
+    res         = []
+    dates       = [ rec[base_rec.date] for rec in recs ]
+    dte         = [ rec[base_rec.dte] for rec in recs ]
+    ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
+    bom         = ul_exp + MonthBegin(-1)
+    eom         = ul_exp + MonthEnd(0)
+    b_eom       = ul_exp + BMonthEnd(0)
+    r_name      = rule[0] 
+    serial      = rule[1]
 
-    if kind == "M":
+    while serial > 0:
 
-        offset      = rule[0]
-        relative_to = rule[1]
-        months      = rule[2]
+        if kind == "M":
 
-        if relative_to == "EOM":
+            if r_name == "UL_EXP-1BD":
 
-            # business days prior to end of month
-            # assumes offset is negative
+                res.append(ul_exp - BDay())
 
-            while months > 0:
-
-                exp = ul_exp + MonthEnd(0)
-                exp = exp + (offset + 1) * BDay() if BDay().is_on_offset(exp) else exp + offset * BDay()
+            elif r_name == "EOM-4BD":
+                
+                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
 
                 res.append(exp)
-
-                months -= 1
-
-        elif relative_to == "EXP":
-
-            # business days prior to underlying expiration
-
-            while months > 0:
-
-                res.append((ul_exp + offset * BDay()).strftime(DATE_FMT))
-
-                months -= 1
-
-        elif relative_to == "FRI":
-
-            # friday of month
-
-            exp = ul_exp + relativedelta(day = 31, weekday = FR(-1))
-
-            while months > 0:
-
-                while not BDay().onOffset(exp):
-
-                    exp -= BDay()
-
-                res.append(exp.strftime(DATE_FMT))
             
-                exp += DateOffset(months = 1)
-                exp += relativedelta(day = 31, weekday = FR(-1))
+            elif r_name == "-2BD-1FRI":
 
-                months  -= 1
+                # first friday prior to the second to last business day of the month;
+                # if this is not a business day, then the day prior
 
-    elif kind == "W":
-
-        days    = [ DAYS_OF_WEEK[day] for day in rule[0] ]
-        months  = rule[1]
-        exp     = ul_exp
-        month   = ul_exp.month
-
-        while months > 0:
-
-            if exp.weekday() in days:
+                cutoff  = bdate_range(bom, eom, holidays = HOLIDAYS)[-3]
+                fri     = date_range(bom, cutoff, freq = "W-FRI")[-1]
+                exp     = fri if BDay().is_on_offset(fri) else fri - BDay()
 
                 res.append(exp)
 
-                exp -= BDay()
+            elif r_name == "25th-(6|7)BD":
 
-                if exp.month != month:
+                exp = bom + DateOffset(days = 24) - 6 * BDay()
+                exp = exp if BDay().is_on_offset(exp) else exp - BDay()
 
-                    month = ul_exp.month
+            elif r_name == "10BD":
 
-                    months -= 1
+                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[10]
+
+                res.append(exp)
+
+            elif r_name == "1FRI":
+
+                exp = date_range(bom, eom, freq = "W-FRI")[1]
+
+                res.append(exp)
+
+        elif kind == "W":
+
+            pass
+    
+        bom     += MonthBegin(-1)
+        eom      = bom + MonthEnd(0)
+        serial  -= 1
 
     return res
 
