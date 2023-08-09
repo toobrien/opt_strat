@@ -13,10 +13,10 @@ DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
 EXPIRATIONS = {
     "NG": { 
-        "M": ( "UL_EXP-1BD", 1 )
+        "M": ( "EOM-4BD", 1 )    # also UL_EXP-1BD
     },
     "CL": {
-        "M": ( "UL_EXP-1BD", 1 ),
+        "M": ( "EOM-4BD", 1 ),   # also UL_EXP-1BD
         "W": ( "MWF", 1 )
     },
     "ZN": {
@@ -140,7 +140,7 @@ def get_expirations(
                 # last thursday of month if business day; else 2nd last thursday
 
                 rng = date_range(bom, eom, freq = "W-THU")
-                exp = date_range[-1] if BDay().is_on_offset(date_range[-1]) else date_range[-2]
+                exp = rng[-1] if BDay().is_on_offset(rng[-1]) else rng[-2]
 
                 res.append(exp)
 
