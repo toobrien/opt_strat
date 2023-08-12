@@ -13,7 +13,7 @@ DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
 OPT_DEFS    = [
 
-    # ul sym, opt sym, freq, desc, rule, serial months, day of week, enabled
+    # ul_sym, opt_sym, freq, desc, rule, serial_months, day_of_week, enabled
 
     ( "NG",     "LNE",      "M",    "European Options",             "EOM-4BD",      1,  None,   True    ),  # also UL_EXP-1BD
     ( "NG",     "ON",       "M",    "American Options",             "EOM-4BD",      1,  None,   False   ),  # also UL_EXP-1BD
