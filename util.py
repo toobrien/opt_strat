@@ -11,19 +11,63 @@ from    typing                  import  List
 CONFIG      = loads(open("./config.json").read())
 DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
-EXPIRATIONS = {
-    "NG": { 
-        "M": ( "EOM-4BD", 1 )    # also UL_EXP-1BD
-    },
-    "CL": {
-        "M": ( "EOM-4BD", 1 ),   # also UL_EXP-1BD
-        "W": ( "MWF", 1 )
-    },
-    "ZN": {
-        "M": ( "EOM-2BD-1FRI", 3 ),
-        "W": ( "WF", 3 ),
-    }
-}
+OPT_DEFS    = [
+
+    # ul sym, opt sym, freq, desc, rule, serial months, day of week, enabled
+
+    ( "NG",     "LNE",      "M",    "European Options",             "EOM-4BD",      1,  None,   True    ),  # also UL_EXP-1BD
+    ( "NG",     "ON",       "M",    "American Options",             "EOM-4BD",      1,  None,   False   ),  # also UL_EXP-1BD
+    ( "CL",     "LO",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
+    ( "CL",     "LO1:5",    "W",    "Weekly Friday",                None,           1,  4,      True    ),
+    ( "CL",     "WL1:5",    "W",    "Weekly Wednesday",             None,           1,  2,      True    ),
+    ( "CL",     "ML1:5",    "W",    "Weekly Monday",                None,           1,  0,      True    ),
+    ( "HO",     "OH",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
+    ( "RB",     "OB",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
+    ( "ZN",     "OZN",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
+    ( "ZN",     "ZN1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
+    ( "ZN",     "WY1:5",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),
+    ( "ZB",     "OZB",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
+    ( "ZB",     "ZB1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
+    ( "ZB",     "WB1:5",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),
+    ( "ZC",     "OZC",      "M",    "American Options",             "EOM-2BD-1FRI", 2,  None,   True    ),
+    ( "ZC",     "OCD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   True    ),  # Z only... need to implement
+    ( "ZC",     "ZC1:5",    "W",    "Weekly Options",               None,           2,  4,      True    ),
+    ( "ZW",     "OZW",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
+    ( "ZW",     "ZW1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
+    ( "ZS",     "OZS",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
+    ( "ZS",     "OSD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   True    ),  # X only... need to implement
+    ( "ZS",     "ZS1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
+    ( "ZM",     "OZM",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
+    ( "ZL",     "OZL",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
+    ( "HE",     "HE",       "M",    "American Options",             "BOM+10BD",     1,  None,   True    ),  # not sure about serial
+    ( "LE",     "LE",       "M",    "American Options",             "BOM+1FRI",     1,  None,   True    ),  # not sure about serial
+    ( "GF",     "GF",       "M",    "American Options",             "EOM-(1|2)THU", 1,  None,   True    ),  # not sure about serial
+    ( "GC",     "OG",       "M",    "American Options",             "EOM-(4|5)BD",  1,  None,   True    ),  # not sure about serial
+    ( "GC",     "OG1:5",    "W",    "Weekly Options",               None,           2,  4,      True    ),  # not sure about serial
+    ( "GC",     "G1:5W",    "W",    "Weekly Wednesday Option",      None,           2,  2,      True    ),  # not sure about serial
+    ( "GC",     "G1:5M",    "W",    "Weekly Monday Option",         None,           2,  0,      True    ),  # not sure about serial
+    ( "SI",     "SO",       "M",    "American Options",             "EOM-(4|5)BD",  3,  None,   True    ),  # not sure about serial
+    ( "SI",     "SO1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),  # not sure about serial
+    ( "SI",     "W1:5S",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),  # not sure about serial
+    ( "SI",     "M1:5S",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),  # not sure about serial
+    ( "HG",     "HXE",      "M",    "American Options",             "EOM-(4|5)BD",  3,  None,   True    ),  # not sure about serial
+    ( "HG",     "H1:5E",    "W",    "Weekly Options",               None,           3,  4,      True    ),  # not sure about serial
+    ( "HG",     "H1:5W",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),  # not sure about serial
+    ( "HG",     "H1:5M",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),  # not sure about serial
+    ( "6E",     "EUU",      "M",    "Monthly Options",             "BOM+2FRI<3WED", 3,  None,   True    ),
+    ( "6E",     "1:5EU",    "W",    "Weekly Friday Options",        None,           3,  4,      True    ),
+    ( "6E",     "SU1:5",    "W",    "Weekly Thursday Option",       None,           3,  3,      True    ),
+    ( "6E",     "WE1:5",    "W",    "Weekly Wednesday Options",     None,           3,  2,      True    ),
+    ( "6E",     "TU1:5",    "W",    "Weekly Tuesday Option",        None,           3,  1,      True    ),
+    ( "6E",     "MO1:5",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),
+    ( "6J",     "JPU",      "M",    "Monthly Options",             "BOM+2FRI<3WED", 3,  None,   True    ),
+    ( "6J",     "1:5JY",    "W",    "Weekly Friday Options",        None,           3,  4,      True    ),
+    ( "6J",     "SJ1:5",    "W",    "Weekly Thursday Option",       None,           3,  3,      True    ),
+    ( "6J",     "WJ1:5",    "W",    "Weekly Wednesday Options",     None,           3,  2,      True    ),
+    ( "6J",     "TJ1:5",    "W",    "Weekly Tuesday Option",        None,           3,  1,      True    ),
+    ( "6J",     "MJ1:5",    "W",    "Weekly Monday Option",         None,           3,  0,      True    )
+    
+]
 MONTHS      = {
     1:  "F",
     2:  "G",
@@ -39,13 +83,25 @@ MONTHS      = {
     12: "Z"
 }
 DAYS_OF_WEEK = {
-    "M": 0,
-    "T": 1,
-    "W": 2,
-    "H": 3,
-    "F": 4
+    0: "MON",
+    1: "TUE",
+    2: "WED",
+    3: "THU",
+    4: "FRI"
 }
 HOLIDAYS = USFederalHolidayCalendar.holidays(start = "1900-01-01", end = "2100-01-01")
+
+
+class opt_def_rec(IntEnum):
+
+    ul_sym  = 0
+    opt_sym = 1
+    freq    = 2
+    desc    = 3
+    rule    = 4
+    serial  = 5
+    day     = 6
+    enabled = 7
 
 
 class base_rec(IntEnum):
@@ -71,7 +127,7 @@ def get_monthly_series(
 def get_expirations(
     recs:   List[base_rec],
     kind:   str,
-    rule:   str
+    dfn:    opt_def_rec
 ):
 
     res         = []
@@ -80,6 +136,7 @@ def get_expirations(
     ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
     bom         = ul_exp + MonthBegin(-1)
     eom         = ul_exp + MonthEnd(0)
+    rule        = dfn[opt_def_rec.rule]
     r_name      = rule[0] 
     serial      = rule[1]
 
@@ -164,7 +221,9 @@ def get_expirations(
 
         elif kind == "W":
 
-            pass
+            day = dfn[opt_def_rec.day]
+            rng = date_range(bom, ul_exp, freq = f"W-{DAYS_OF_WEEK[day]}")
+            
     
         bom     += MonthBegin(-1)
         eom      = bom + MonthEnd(0)
