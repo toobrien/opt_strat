@@ -30,12 +30,12 @@ OPT_DEFS    = [
     ( "ZB",     "ZB1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
     ( "ZB",     "WB1:5",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),
     ( "ZC",     "OZC",      "M",    "American Options",             "EOM-2BD-1FRI", 2,  None,   True    ),
-    ( "ZC",     "OCD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   True    ),  # Z only... need to implement
+    ( "ZC",     "OCD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   False   ),  # Z only... need to implement
     ( "ZC",     "ZC1:5",    "W",    "Weekly Options",               None,           2,  4,      True    ),
     ( "ZW",     "OZW",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
     ( "ZW",     "ZW1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
     ( "ZS",     "OZS",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
-    ( "ZS",     "OSD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   True    ),  # X only... need to implement
+    ( "ZS",     "OSD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   False   ),  # X only... need to implement
     ( "ZS",     "ZS1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
     ( "ZM",     "OZM",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
     ( "ZL",     "OZL",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
@@ -222,7 +222,7 @@ def get_expirations(
         elif kind == "W":
 
             day = dfn[opt_def_rec.day]
-            rng = date_range(bom, ul_exp, freq = f"W-{DAYS_OF_WEEK[day]}")
+            # rng = date_range(bom, ul_exp, freq = f"W-{DAYS_OF_WEEK[day]}")
             
     
         bom     += MonthBegin(-1)
