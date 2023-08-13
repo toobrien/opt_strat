@@ -11,63 +11,73 @@ from    typing                  import  List
 CONFIG      = loads(open("./config.json").read())
 DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
-OPT_DEFS    = [
+OPT_DEFS    = {
 
-    # ul_sym, opt_sym, freq, desc, rule, serial_months, day_of_week, enabled
+    "6E": {
+        "monthly_sym":  "EUU",
+        "weekly_syms":  [ "MO*", "TU*", "WE*", "SU*", "*EU" ],
+        "exp_rule":     "BOM+2FRI<3WED",
+        "ul_map":       {
+            "H": (-2, 0),
+            "M": (-2, 0),
+            "U": (-2, 0),
+            "Z": (-2, 0)
+        },
+        "m_sym_offset": 0
+    },
+    "6J": {
+        "monthly_sym":  "JPU",
+        "weekly_syms":  [ "MJ*", "TJ*", "WJ*", "SJ*", "*JY" ],
+        "exp_rule":     "BOM+2FRI<3WED",
+        "ul_map":       {
+            "H":    (-2, 0),
+            "M":    (-2, 0),
+            "U":    (-2, 0),
+            "Z":    (-2, 0)
+        },
+        "m_sym_offset": 0
+    },
+    "HG": {
+        "monthly_sym":  "HXE",
+        "weekly_syms":  [ "H*M", None, "H*W", None, "H*E" ],
+        "exp_rule":     "EOM-(4|5)BD",
+        "ul_map": {
+            "H": (-4, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "U": (-3, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "SI": {
+        "monthly_sym":  "SO",
+        "weekly_syms":  [ "M*S", None, "W*S", None, "SO*" ],
+        "exp_rule":     "EOM-(4|5)BD",
+        "ul_map": {
+            "H": (-4, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "U": (-3, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "GC": {
+        "monthly_sym":  "OG",
+        "weekly_syms":  [ "G*M", None, "G*W", None, "OG*" ],
+        "exp_rule":     "EOM-(4|5)BD",
+        "ul_map": {
+            "G": (-2, -1),
+            # ...
+            "V": (-2, -1),
+            "Z": (-3, -1)
+        },
+        "m_sym_offset": 1
+    }
 
-    ( "NG",     "LNE",      "M",    "European Options",             "EOM-4BD",      1,  None,   True    ),  # also UL_EXP-1BD
-    ( "NG",     "ON",       "M",    "American Options",             "EOM-4BD",      1,  None,   False   ),  # also UL_EXP-1BD
-    ( "CL",     "LO",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
-    ( "CL",     "LO1:5",    "W",    "Weekly Friday",                None,           1,  4,      True    ),
-    ( "CL",     "WL1:5",    "W",    "Weekly Wednesday",             None,           1,  2,      True    ),
-    ( "CL",     "ML1:5",    "W",    "Weekly Monday",                None,           1,  0,      True    ),
-    ( "HO",     "OH",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
-    ( "RB",     "OB",       "M",    "American Options",             "EOM-4BD",      1,  None,   True    ),
-    ( "ZN",     "OZN",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
-    ( "ZN",     "ZN1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
-    ( "ZN",     "WY1:5",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),
-    ( "ZB",     "OZB",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
-    ( "ZB",     "ZB1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
-    ( "ZB",     "WB1:5",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),
-    ( "ZC",     "OZC",      "M",    "American Options",             "EOM-2BD-1FRI", 2,  None,   True    ),
-    ( "ZC",     "OCD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   False   ),  # Z only... need to implement
-    ( "ZC",     "ZC1:5",    "W",    "Weekly Options",               None,           2,  4,      True    ),
-    ( "ZW",     "OZW",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
-    ( "ZW",     "ZW1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
-    ( "ZS",     "OZS",      "M",    "American Options",             "EOM-2BD-1FRI", 3,  None,   True    ),
-    ( "ZS",     "OSD",      "M",    "Short-Dated New Crop Options", "EOM-2BD-1FRI", 12, None,   False   ),  # X only... need to implement
-    ( "ZS",     "ZS1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),
-    ( "ZM",     "OZM",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
-    ( "ZL",     "OZL",      "M",    "American Options",             "EOM-2BD-1FRI", 1,  None,   True    ),  # not sure about serial
-    ( "HE",     "HE",       "M",    "American Options",             "BOM+10BD",     1,  None,   True    ),  # not sure about serial
-    ( "LE",     "LE",       "M",    "American Options",             "BOM+1FRI",     1,  None,   True    ),  # not sure about serial
-    ( "GF",     "GF",       "M",    "American Options",             "EOM-(1|2)THU", 1,  None,   True    ),  # not sure about serial
-    ( "GC",     "OG",       "M",    "American Options",             "EOM-(4|5)BD",  1,  None,   True    ),  # not sure about serial
-    ( "GC",     "OG1:5",    "W",    "Weekly Options",               None,           2,  4,      True    ),  # not sure about serial
-    ( "GC",     "G1:5W",    "W",    "Weekly Wednesday Option",      None,           2,  2,      True    ),  # not sure about serial
-    ( "GC",     "G1:5M",    "W",    "Weekly Monday Option",         None,           2,  0,      True    ),  # not sure about serial
-    ( "SI",     "SO",       "M",    "American Options",             "EOM-(4|5)BD",  3,  None,   True    ),  # not sure about serial
-    ( "SI",     "SO1:5",    "W",    "Weekly Options",               None,           3,  4,      True    ),  # not sure about serial
-    ( "SI",     "W1:5S",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),  # not sure about serial
-    ( "SI",     "M1:5S",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),  # not sure about serial
-    ( "HG",     "HXE",      "M",    "American Options",             "EOM-(4|5)BD",  3,  None,   True    ),  # not sure about serial
-    ( "HG",     "H1:5E",    "W",    "Weekly Options",               None,           3,  4,      True    ),  # not sure about serial
-    ( "HG",     "H1:5W",    "W",    "Weekly Wednesday Option",      None,           3,  2,      True    ),  # not sure about serial
-    ( "HG",     "H1:5M",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),  # not sure about serial
-    ( "6E",     "EUU",      "M",    "Monthly Options",             "BOM+2FRI<3WED", 3,  None,   True    ),
-    ( "6E",     "1:5EU",    "W",    "Weekly Friday Options",        None,           3,  4,      True    ),
-    ( "6E",     "SU1:5",    "W",    "Weekly Thursday Option",       None,           3,  3,      True    ),
-    ( "6E",     "WE1:5",    "W",    "Weekly Wednesday Options",     None,           3,  2,      True    ),
-    ( "6E",     "TU1:5",    "W",    "Weekly Tuesday Option",        None,           3,  1,      True    ),
-    ( "6E",     "MO1:5",    "W",    "Weekly Monday Option",         None,           3,  0,      True    ),
-    ( "6J",     "JPU",      "M",    "Monthly Options",             "BOM+2FRI<3WED", 3,  None,   True    ),
-    ( "6J",     "1:5JY",    "W",    "Weekly Friday Options",        None,           3,  4,      True    ),
-    ( "6J",     "SJ1:5",    "W",    "Weekly Thursday Option",       None,           3,  3,      True    ),
-    ( "6J",     "WJ1:5",    "W",    "Weekly Wednesday Options",     None,           3,  2,      True    ),
-    ( "6J",     "TJ1:5",    "W",    "Weekly Tuesday Option",        None,           3,  1,      True    ),
-    ( "6J",     "MJ1:5",    "W",    "Weekly Monday Option",         None,           3,  0,      True    )
-    
-]
+}
+
 MONTHS      = {
     1:  "F",
     2:  "G",
