@@ -13,15 +13,20 @@ DATE_FMT    = "%Y-%m-%d"
 DB          = pl.read_parquet(CONFIG["db_path"])
 OPT_DEFS    = {
 
+    # bounds on ul_map are:
+    #
+    #   - start:    inclusive weekly exps from monthly exp, exclusive monthly exp
+    #   - end:      inclusive weekly until monthly exp, inclusive monthly exp
+
     "6E": {
         "monthly_sym":  "EUU",
         "weekly_syms":  [ "MO*", "TU*", "WE*", "SU*", "*EU" ],
         "exp_rule":     "BOM+2FRI<3WED",
         "ul_map":       {
-            "H": (-2, 0),
-            "M": (-2, 0),
-            "U": (-2, 0),
-            "Z": (-2, 0)
+            "H": (-3, 0),
+            "M": (-3, 0),
+            "U": (-3, 0),
+            "Z": (-3, 0)
         },
         "m_sym_offset": 0
     },
@@ -30,10 +35,10 @@ OPT_DEFS    = {
         "weekly_syms":  [ "MJ*", "TJ*", "WJ*", "SJ*", "*JY" ],
         "exp_rule":     "BOM+2FRI<3WED",
         "ul_map":       {
-            "H":    (-2, 0),
-            "M":    (-2, 0),
-            "U":    (-2, 0),
-            "Z":    (-2, 0)
+            "H":    (-3, 0),
+            "M":    (-3, 0),
+            "U":    (-3, 0),
+            "Z":    (-3, 0)
         },
         "m_sym_offset": 0
     },
@@ -68,13 +73,239 @@ OPT_DEFS    = {
         "weekly_syms":  [ "G*M", None, "G*W", None, "OG*" ],
         "exp_rule":     "EOM-(4|5)BD",
         "ul_map": {
-            "G": (-2, -1),
-            # ...
+            "G": (-4, -1),
+            "J": (-3, -1),
+            "M": (-3, -1),
+            "Q": (-3, -1),
+            "V": (-3, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "GF": {
+        "monthly_sym":  "GF",
+        "weekly_syms":  [ None, None, None, None, None ],
+        "exp_rule":     "EOM-(1|2)THU",
+        "ul_map":       {
+            "F": (0, 0),
+            "H": (0, 0),
+            "J": (0, 0),
+            "K": (0, 0),
+            "Q": (0, 0),
+            "U": (0, 0),
+            "V": (0, 0),
+            "Z": (0, 0)
+        },
+        "m_sym_offset": 0
+    },
+    "LE": {
+        "monthly_sym":  "LE",
+        "weekly_syms":  [ None, None, None, None, None ],
+        "exp_rule":     "BOM+1FRI",
+        "ul_map":       {
+            "G": (-2, 0),
+            "J": (-2, 0),
+            "M": (-2, 0),
+            "Q": (-2, 0),
+            "V": (-2, 0),
+            "Z": (-2, 0)
+        },
+        "m_sym_offset": 0
+    },
+    "HE": {
+        "monthly_sym":  "HE",
+        "weekly_syms":  [ None, None, None, None, None ],
+        "exp_rule":     "BOM+10BD",
+        "ul_map":       {
+            "G": (0, 0),
+            "J": (0, 0),
+            "K": (0, 0),
+            "M": (0, 0),
+            "N": (0, 0),
+            "Q": (0, 0),
+            "V": (0, 0),
+            "Z": (0, 0)
+        },
+        "m_sym_offset": 0
+    },
+    "ZL": {
+        "monthly_sym":  "OZL",
+        "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "F": (-2, -1),
+            "H": (-3, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "Q": (-2, -1),
+            "U": (-2, -1),
             "V": (-2, -1),
             "Z": (-3, -1)
         },
         "m_sym_offset": 1
-    }
+    },
+    "ZM": {
+        "monthly_sym":  "OZM",
+        "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "F": (-2, -1),
+            "H": (-3, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "Q": (-2, -1),
+            "U": (-2, -1),
+            "V": (-2, -1),
+            "Z": (-3, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "ZS": {
+        "monthly_sym":  "OZS",
+        "weekly_syms":  [ None, None, None, None, "ZS*" ],
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "F": (-2, -1),
+            "H": (-3, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "Q": (-2, -1),
+            "U": (-2, -1),
+            "X": (-3, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "ZW": {
+        "monthly_sym":  "OZW",
+        "weekly_syms":  [ None, None, None, None, "ZW*" ],
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "H": (-4, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "U": (-3, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "ZC": {
+        "monthly_sym":  "OZC",
+        "weekly_syms":  [ None, None, None, None, "ZC*" ],
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "H": (-4, -1),
+            "K": (-3, -1),
+            "N": (-3, -1),
+            "U": (-3, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "ZB": {
+        "monthly_sym":  "OZB",
+        "weekly_syms":  [ None, None, "WB*", None, "ZB*" ],
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "H": (-4, -1),
+            "M": (-4, -1),
+            "U": (-4, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "ZN": {
+        "monthly_sym":  "OZN",
+        "weekly_syms":  [ None, None, "WY*", None, "ZN*" ],
+        "exp_rule":     "EOM-2BD-1FRI",
+        "ul_map":       {
+            "H": (-4, -1),
+            "M": (-4, -1),
+            "U": (-4, -1),
+            "Z": (-4, -1)
+        },
+        "m_sym_offset": 1
+    },
+    "RB": {
+        "monthly_sym":  "OB",
+        "weekly_syms":  [ None, None, None, None, None ],
+        "exp_rule":     "EOM-4BD",
+        "ul_map":       {
+            "F": (-1, -1),
+            "G": (-1, -1),
+            "H": (-1, -1),
+            "J": (-1, -1),
+            "K": (-1, -1),
+            "M": (-1, -1),
+            "N": (-1, -1),
+            "Q": (-1, -1),
+            "U": (-1, -1),
+            "V": (-1, -1),
+            "X": (-1, -1),
+            "Z": (-1, -1),
+        },
+        "m_sym_offset": 1
+    },
+    "HO": {
+        "monthly_sym":  "OH",
+        "weekly_syms":  [ None, None, None, None, None ],
+        "exp_rule":     "EOM-4BD",
+        "ul_map":       {
+            "F": (-1, -1),
+            "G": (-1, -1),
+            "H": (-1, -1),
+            "J": (-1, -1),
+            "K": (-1, -1),
+            "M": (-1, -1),
+            "N": (-1, -1),
+            "Q": (-1, -1),
+            "U": (-1, -1),
+            "V": (-1, -1),
+            "X": (-1, -1),
+            "Z": (-1, -1),
+        },
+        "m_sym_offset": 1
+    },
+    "CL": {
+        "monthly_sym":  "LO",
+        "weekly_syms":  [ "ML*", None, "WL*", None, "LO*" ],
+        "exp_rule":     "25TH-(6|7)BD",
+        "ul_map":       {
+            "F": (-2, -1),
+            "G": (-2, -1),
+            "H": (-2, -1),
+            "J": (-2, -1),
+            "K": (-2, -1),
+            "M": (-2, -1),
+            "N": (-2, -1),
+            "Q": (-2, -1),
+            "U": (-2, -1),
+            "V": (-2, -1),
+            "X": (-2, -1),
+            "Z": (-2, -1),
+        },
+        "m_sym_offset": 1
+    },
+    "NG": {
+        "monthly_sym":  "LNE",
+        "weekly_syms":  [ None, None, None, None, None ],   # not enough volume / liquidity to trade
+        "exp_rule":     "EOM-4BD",
+        "ul_map":       {
+            "F": (-1, -1),
+            "G": (-1, -1),
+            "H": (-1, -1),
+            "J": (-1, -1),
+            "K": (-1, -1),
+            "M": (-1, -1),
+            "N": (-1, -1),
+            "Q": (-1, -1),
+            "U": (-1, -1),
+            "V": (-1, -1),
+            "X": (-1, -1),
+            "Z": (-1, -1),
+        },
+        "m_sym_offset": 1
+    },
+
 
 }
 
