@@ -332,19 +332,6 @@ DAYS_OF_WEEK = {
 }
 HOLIDAYS = USFederalHolidayCalendar.holidays(start = "1900-01-01", end = "2100-01-01")
 
-
-class opt_def_rec(IntEnum):
-
-    ul_sym  = 0
-    opt_sym = 1
-    freq    = 2
-    desc    = 3
-    rule    = 4
-    serial  = 5
-    day     = 6
-    enabled = 7
-
-
 class base_rec(IntEnum):
 
     date    = 0
@@ -368,7 +355,7 @@ def get_monthly_series(
 def get_expirations(
     recs:   List[base_rec],
     kind:   str,
-    dfn:    opt_def_rec
+    dfn:    dict
 ):
 
     res         = []
@@ -377,7 +364,7 @@ def get_expirations(
     ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
     bom         = ul_exp + MonthBegin(-1)
     eom         = ul_exp + MonthEnd(0)
-    rule        = dfn[opt_def_rec.rule]
+    rule        = dfn["exp_rule"]
     r_name      = rule[0] 
     serial      = rule[1]
 
@@ -462,9 +449,9 @@ def get_expirations(
 
         elif kind == "W":
 
-            day = dfn[opt_def_rec.day]
             # rng = date_range(bom, ul_exp, freq = f"W-{DAYS_OF_WEEK[day]}")
-            
+
+            pass
     
         bom     += MonthBegin(-1)
         eom      = bom + MonthEnd(0)
