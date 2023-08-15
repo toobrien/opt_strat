@@ -340,9 +340,9 @@ class base_rec(IntEnum):
     dte     = 4 
 
 
-def get_monthly_series(
+def get_expiration_series(
     symbol:     str,        # e.g. ZC, CL, etc.
-    type:       str,        # monthly (M) or weekly (W)
+    type:       str,        # monthly (M) or weekly (W), or both (*)
     dte:        int,        # time remaining for option strategy
     start:      str,        # data start date yyyy-mm-dd
     end:        str         # data end date   yyyy-mm-dd
