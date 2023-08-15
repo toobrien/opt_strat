@@ -15,6 +15,7 @@ OPT_DEFS    = {
 
     # bounds on ul_map are:
     #
+    #   - relative to month in which underlying future *expires* (e.g. august for CL U)
     #   - start:    inclusive weekly exps from monthly exp, exclusive monthly exp
     #   - end:      inclusive weekly until monthly exp, inclusive monthly exp
 
@@ -87,14 +88,14 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "exp_rule":     "EOM-(1|2)THU",
         "ul_map":       {
-            "F": (0, 0),
-            "H": (0, 0),
-            "J": (0, 0),
-            "K": (0, 0),
-            "Q": (0, 0),
-            "U": (0, 0),
-            "V": (0, 0),
-            "Z": (0, 0)
+            "F": (-1, 0),
+            "H": (-1, 0),
+            "J": (-1, 0),
+            "K": (-1, 0),
+            "Q": (-1, 0),
+            "U": (-1, 0),
+            "V": (-1, 0),
+            "Z": (-1, 0)
         },
         "m_sym_offset": 0
     },
@@ -117,14 +118,14 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "exp_rule":     "BOM+10BD",
         "ul_map":       {
-            "G": (0, 0),
-            "J": (0, 0),
-            "K": (0, 0),
-            "M": (0, 0),
-            "N": (0, 0),
-            "Q": (0, 0),
-            "V": (0, 0),
-            "Z": (0, 0)
+            "G": (-1, 0),
+            "J": (-1, 0),
+            "K": (-1, 0),
+            "M": (-1, 0),
+            "N": (-1, 0),
+            "Q": (-1, 0),
+            "V": (-1, 0),
+            "Z": (-1, 0)
         },
         "m_sym_offset": 0
     },
@@ -206,10 +207,10 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, "WB*", None, "ZB*" ],
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "H": (-4, -1),
-            "M": (-4, -1),
-            "U": (-4, -1),
-            "Z": (-4, -1)
+            "H": (-4, 0),
+            "M": (-4, 0),
+            "U": (-4, 0),
+            "Z": (-4, 0)
         },
         "m_sym_offset": 1
     },
@@ -218,10 +219,10 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, "WY*", None, "ZN*" ],
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "H": (-4, -1),
-            "M": (-4, -1),
-            "U": (-4, -1),
-            "Z": (-4, -1)
+            "H": (-4, 0),
+            "M": (-4, 0),
+            "U": (-4, 0),
+            "Z": (-4, 0)
         },
         "m_sym_offset": 1
     },
@@ -230,18 +231,18 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
-            "F": (-1, -1),
-            "G": (-1, -1),
-            "H": (-1, -1),
-            "J": (-1, -1),
-            "K": (-1, -1),
-            "M": (-1, -1),
-            "N": (-1, -1),
-            "Q": (-1, -1),
-            "U": (-1, -1),
-            "V": (-1, -1),
-            "X": (-1, -1),
-            "Z": (-1, -1),
+            "F": (-1, 0),
+            "G": (-1, 0),
+            "H": (-1, 0),
+            "J": (-1, 0),
+            "K": (-1, 0),
+            "M": (-1, 0),
+            "N": (-1, 0),
+            "Q": (-1, 0),
+            "U": (-1, 0),
+            "V": (-1, 0),
+            "X": (-1, 0),
+            "Z": (-1, 0),
         },
         "m_sym_offset": 1
     },
@@ -250,18 +251,18 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
-            "F": (-1, -1),
-            "G": (-1, -1),
-            "H": (-1, -1),
-            "J": (-1, -1),
-            "K": (-1, -1),
-            "M": (-1, -1),
-            "N": (-1, -1),
-            "Q": (-1, -1),
-            "U": (-1, -1),
-            "V": (-1, -1),
-            "X": (-1, -1),
-            "Z": (-1, -1),
+            "F": (-1, 0),
+            "G": (-1, 0),
+            "H": (-1, 0),
+            "J": (-1, 0),
+            "K": (-1, 0),
+            "M": (-1, 0),
+            "N": (-1, 0),
+            "Q": (-1, 0),
+            "U": (-1, 0),
+            "V": (-1, 0),
+            "X": (-1, 0),
+            "Z": (-1, 0),
         },
         "m_sym_offset": 1
     },
@@ -270,18 +271,18 @@ OPT_DEFS    = {
         "weekly_syms":  [ "ML*", None, "WL*", None, "LO*" ],
         "exp_rule":     "25TH-(6|7)BD",
         "ul_map":       {
-            "F": (-2, -1),
-            "G": (-2, -1),
-            "H": (-2, -1),
-            "J": (-2, -1),
-            "K": (-2, -1),
-            "M": (-2, -1),
-            "N": (-2, -1),
-            "Q": (-2, -1),
-            "U": (-2, -1),
-            "V": (-2, -1),
-            "X": (-2, -1),
-            "Z": (-2, -1),
+            "F": (-2, 0),
+            "G": (-2, 0),
+            "H": (-2, 0),
+            "J": (-2, 0),
+            "K": (-2, 0),
+            "M": (-2, 0),
+            "N": (-2, 0),
+            "Q": (-2, 0),
+            "U": (-2, 0),
+            "V": (-2, 0),
+            "X": (-2, 0),
+            "Z": (-2, 0),
         },
         "m_sym_offset": 1
     },
@@ -290,18 +291,18 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not enough volume / liquidity to trade
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
-            "F": (-1, -1),
-            "G": (-1, -1),
-            "H": (-1, -1),
-            "J": (-1, -1),
-            "K": (-1, -1),
-            "M": (-1, -1),
-            "N": (-1, -1),
-            "Q": (-1, -1),
-            "U": (-1, -1),
-            "V": (-1, -1),
-            "X": (-1, -1),
-            "Z": (-1, -1),
+            "F": (-1, 0),
+            "G": (-1, 0),
+            "H": (-1, 0),
+            "J": (-1, 0),
+            "K": (-1, 0),
+            "M": (-1, 0),
+            "N": (-1, 0),
+            "Q": (-1, 0),
+            "U": (-1, 0),
+            "V": (-1, 0),
+            "X": (-1, 0),
+            "Z": (-1, 0),
         },
         "m_sym_offset": 1
     },
@@ -353,9 +354,9 @@ def get_monthly_series(
 
 
 def get_expirations(
+    sym:    str,
     recs:   List[base_rec],
     kind:   str,
-    dfn:    dict
 ):
 
     res         = []
@@ -364,6 +365,7 @@ def get_expirations(
     ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
     bom         = ul_exp + MonthBegin(-1)
     eom         = ul_exp + MonthEnd(0)
+    dfn         = OPT_DEFS[sym]
     rule        = dfn["exp_rule"]
     r_name      = rule[0] 
     serial      = rule[1]
