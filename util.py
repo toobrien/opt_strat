@@ -305,11 +305,9 @@ OPT_DEFS    = {
             "Z": (-1, 0),
         },
         "m_sym_offset": 1
-    },
-
+    }
 
 }
-
 MONTHS      = {
     1:  "F",
     2:  "G",
@@ -355,109 +353,148 @@ def get_monthly_series(
 
 def get_expirations(
     sym:    str,
-    recs:   List[base_rec],
-    kind:   str,
+    recs:   List[base_rec]
 ):
 
-    res         = []
-    dates       = [ rec[base_rec.date] for rec in recs ]
-    dte         = [ rec[base_rec.dte] for rec in recs ]
-    ul_exp      = Timestamp(dates[0]) + DateOffset(days = dte[0])
-    bom         = ul_exp + MonthBegin(-1)
-    eom         = ul_exp + MonthEnd(0)
     dfn         = OPT_DEFS[sym]
     rule        = dfn["exp_rule"]
-    r_name      = rule[0] 
-    serial      = rule[1]
+    monthly_sym = dfn["monthly_sym"]
+    weekly_syms = dfn["weekly_syms"]
+    year        = str(recs[0][base_rec.year])[-1]
+    offset      = dfn["m_sym_offset"]
+    ul_exp      = Timestamp(recs[0][base_rec.date]) + DateOffset(days = recs[0][base_rec.dte])
+    months_ts   = [ ul_exp + MonthBegin[i] for i in range(*dfn["ul_map"][recs[0][base_rec.month]]) ]
+    monthly_exp = None
+    weekly_exp  = None
+    res         = []
 
-    while serial > 0:
+    for bom in months_ts:
 
-        if kind == "M":
+        # MONTHLY EXPIRATION
 
-            if r_name == "UL_EXP-1BD":
+        eom = bom + MonthEnd(1)
 
-                # one business day prior to the underlying contract's expiration
-
-                res.append(ul_exp - BDay())
-
-            elif r_name == "EOM-4BD":
-                
-                # fourth last business day of the month
-
-                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4] 
-
-                res.append(exp)
+        if rule == "EOM-4BD":
             
-            elif r_name == "EOM-2BD-1FRI":
+            # fourth last business day of the month
 
-                # first friday prior to the second to last business day of the month;
-                # if this is not a business day, then the day prior
+            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
 
-                cutoff  = bdate_range(bom, eom, holidays = HOLIDAYS)[-3]
-                fri     = date_range(bom, cutoff, freq = "W-FRI")[-1]
-                exp     = fri if BDay().is_on_offset(fri) else fri - BDay()
+            res.append(monthly_exp)
+        
+        elif rule == "EOM-2BD-1FRI":
 
-                res.append(exp)
+            # first friday prior to the second to last business day of the month;
+            # if this is not a business day, then the day prior
 
-            elif r_name == "25TH-(6|7)BD":
+            cutoff      = bdate_range(bom, eom, holidays = HOLIDAYS)[-3]
+            fri         = date_range(bom, cutoff, freq = "W-FRI")[-1]
+            monthly_exp = fri if BDay().is_on_offset(fri) else fri - BDay()
 
-                # the 6th day prior to the 25th calendar day of the month, if business day; else, the 7th day prior
+        elif rule == "25TH-(6|7)BD":
 
-                exp = bom + DateOffset(days = 24) - 6 * BDay()
-                exp = exp if BDay().is_on_offset(exp) else exp - BDay()
+            # the 6th day prior to the 25th calendar day of the month, if business day; else, the 7th day prior
 
-            elif r_name == "BOM+10BD":
+            monthly_exp = bom + DateOffset(days = 24) - 6 * BDay()
+            monthly_exp = monthly_exp if BDay().is_on_offset(monthly_exp) else monthly_exp - BDay()
 
-                # tenth business day of the month
+        elif rule == "BOM+10BD":
 
-                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[10]
+            # tenth business day of the month
 
-                res.append(exp)
+            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[10]
 
-            elif r_name == "BOM+1FRI":
+        elif rule == "BOM+1FRI":
 
-                # first friday of month
+            # first friday of month
 
-                exp = date_range(bom, eom, freq = "W-FRI")[1]
+            monthly_exp = date_range(bom, eom, freq = "W-FRI")[1]
 
-                res.append(exp)
+        elif rule == "EOM-(1|2)THU":
 
-            elif r_name == "EOM-(1|2)THU":
+            # last thursday of month if business day; else 2nd last thursday
 
-                # last thursday of month if business day; else 2nd last thursday
+            rng         = date_range(bom, eom, freq = "W-THU")
+            monthly_exp = rng[-1] if BDay().is_on_offset(rng[-1]) else rng[-2]
 
-                rng = date_range(bom, eom, freq = "W-THU")
-                exp = rng[-1] if BDay().is_on_offset(rng[-1]) else rng[-2]
+        elif monthly_exp == "EOM-(4|5)BD":
 
-                res.append(exp)
+            # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
 
-            elif r_name == "EOM-(4|5)BD":
+            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
+            monthly_exp = monthly_exp if monthly_exp.day_of_week == 4 else monthly_exp - BDay()
 
-                # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
+        elif rule == "BOM+2FRI<3WED":
 
-                exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
-                exp = exp if exp.day_of_week == 4 else exp - BDay()
+            # 2nd friday of the month prior to the 3rd wednesday of the month
 
-                res.append(exp)
+            third_wed   = date_range(bom, eom, freq = "W-WED")[2]
+            monthly_exp = date_range(bom, third_wed, freq = "W-FRI")[-2]
 
-            elif r_name == "BOM+2FRI<3WED":
+        # exclude first monthly expiration (it was for the previous underlying)
+        # unless it is the only monthly expiration
 
-                # 2nd friday of the month prior to the 3rd wednesday of the month
+        if bom != months_ts[0] or len(months_ts) == 1:
 
-                third_wed   = date_range(bom, eom, freq = "W-WED")[2]
-                exp         = date_range(bom, third_wed, freq = "W-FRI")[-2]
+            monthly_str = monthly_exp.strftime(DATE_FMT)
+            monthly_sym = monthly_sym + MONTHS[(monthly_exp.month + offset) % 12] + year
+            
+            res.append(
+                ( 
+                    monthly_str, 
+                    "M", 
+                    monthly_sym 
+                )
+            )
 
-                res.append(exp)
+        # WEEKLY EXPIRATIONS
 
-        elif kind == "W":
+        # valid expirations:
+        #
+        # first month:  from expiration -> eom
+        # last month:   from bom -> expiration
+        # other months: all days in month
 
-            # rng = date_range(bom, ul_exp, freq = f"W-{DAYS_OF_WEEK[day]}")
+        i = bom if bom != months_ts[0]  else monthly_exp
+        j = eom if bom != months_ts[-1] else monthly_exp
 
-            pass
-    
-        bom     += MonthBegin(-1)
-        eom      = bom + MonthEnd(0)
-        serial  -= 1
+        for k in range(len(weekly_syms)):
+
+            weekly_sym  = weekly_syms[k]
+
+            if weekly_sym:
+
+                day_of_week = DAYS_OF_WEEK[k]
+                rng         = date_range(i, j, freq = f"W-{DAYS_OF_WEEK[day_of_week]}")
+
+                for l in range(len(rng)):
+
+                    weekly_exp = rng[l]
+
+                    # skip weekly expiration if it is not on a business day or is the same as the monthly expiration...
+                    # need to check:
+                    #
+                    #   - shift weekly expiration to nearby business day? how?
+                    #   - some weekly expirations can be on the monthly expiration, not sure about rule
+                    #   - some contracts have a special rule stating that weekly expirations do not occur on the *week* of the monthly expiration
+
+                    if  BDay().is_on_offset(weekly_exp) and weekly_exp != monthly_exp:
+
+                        # valid expiration
+                        # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
+
+                        weekly_str = weekly_exp.strftime(DATE_FMT)
+                        weekly_sym = weekly_sym.replace("*", l + 1) + monthly_exp.month + year
+
+                        res.append(
+                            (
+                                weekly_str,
+                                "W",
+                                weekly_sym
+                            )
+                        )
+
+    res = sorted(res, key = lambda r: r[0])
 
     return res
 
