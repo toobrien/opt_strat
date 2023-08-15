@@ -484,7 +484,7 @@ def get_expirations(
                         # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
 
                         weekly_str = weekly_exp.strftime(DATE_FMT)
-                        weekly_sym = weekly_sym.replace("*", l + 1) + monthly_exp.month + year
+                        weekly_sym = weekly_sym.replace("*", str(l + 1)) + monthly_exp.month + year
 
                         res.append(
                             (
