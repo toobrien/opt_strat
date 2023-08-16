@@ -4,7 +4,6 @@ from    json                    import  loads
 from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
-import  polars                  as      pl
 from    sys                     import  path
 from    typing                  import  List
 
@@ -15,7 +14,6 @@ from    data.cat_df             import cat_df
 
 CONFIG      = loads(open("./config.json").read())
 DATE_FMT    = "%Y-%m-%d"
-DB          = pl.read_parquet(CONFIG["db_path"])
 OPT_DEFS    = {
 
     # bounds on ul_map are:
@@ -334,7 +332,7 @@ DAYS_OF_WEEK = {
     3: "THU",
     4: "FRI"
 }
-HOLIDAYS = USFederalHolidayCalendar.holidays(start = "1900-01-01", end = "2100-01-01")
+#HOLIDAYS = USFederalHolidayCalendar().holidays(start = "1900-01-01", end = "2100-01-01")
 
 
 class base_rec(IntEnum):
@@ -369,7 +367,7 @@ def get_expirations(
     year        = str(recs[0][base_rec.year])[-1]
     offset      = dfn["m_sym_offset"]
     ul_exp      = Timestamp(recs[0][base_rec.date]) + DateOffset(days = recs[0][base_rec.dte])
-    months_ts   = [ ul_exp + MonthBegin[i] for i in range(*dfn["ul_map"][recs[0][base_rec.month]]) ]
+    months_ts   = [ ul_exp + MonthBegin(i) for i in range(*dfn["ul_map"][recs[0][base_rec.month]]) ]
     monthly_exp = None
     weekly_exp  = None
     res         = []
@@ -384,7 +382,7 @@ def get_expirations(
             
             # fourth last business day of the month
 
-            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
+            monthly_exp = bdate_range(bom, eom, freq = "C")[-4]
 
             res.append(monthly_exp)
         
@@ -393,7 +391,7 @@ def get_expirations(
             # first friday prior to the second to last business day of the month;
             # if this is not a business day, then the day prior
 
-            cutoff      = bdate_range(bom, eom, holidays = HOLIDAYS)[-3]
+            cutoff      = bdate_range(bom, eom)[-3]
             fri         = date_range(bom, cutoff, freq = "W-FRI")[-1]
             monthly_exp = fri if BDay().is_on_offset(fri) else fri - BDay()
 
@@ -408,7 +406,7 @@ def get_expirations(
 
             # tenth business day of the month
 
-            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[10]
+            monthly_exp = bdate_range(bom, eom, freq = "C")[10]
 
         elif rule == "BOM+1FRI":
 
@@ -427,7 +425,7 @@ def get_expirations(
 
             # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
 
-            monthly_exp = bdate_range(bom, eom, freq = "C", holidays = HOLIDAYS)[-4]
+            monthly_exp = bdate_range(bom, eom, freq = "C")[-4]
             monthly_exp = monthly_exp if monthly_exp.day_of_week == 4 else monthly_exp - BDay()
 
         elif rule == "BOM+2FRI<3WED":
@@ -442,14 +440,16 @@ def get_expirations(
 
         if bom != months_ts[0] or len(months_ts) == 1:
 
-            monthly_str = monthly_exp.strftime(DATE_FMT)
-            monthly_sym = monthly_sym + MONTHS[(monthly_exp.month + offset) % 12] + year
+            monthly_str     = monthly_exp.strftime(DATE_FMT)
+            sym_month       = monthly_exp.month + offset
+            sym_month       = sym_month if sym_month <= 12 else sym_month - 12
+            monthly_sym_    = monthly_sym + MONTHS[sym_month] + year
             
             res.append(
                 ( 
                     monthly_str, 
                     "M", 
-                    monthly_sym 
+                    monthly_sym_
                 )
             )
 
@@ -461,7 +461,7 @@ def get_expirations(
         # last month:   from bom -> expiration
         # other months: all days in month
 
-        i = bom if bom != months_ts[0]  else monthly_exp
+        i = bom
         j = eom if bom != months_ts[-1] else monthly_exp
 
         for k in range(len(weekly_syms)):
@@ -471,11 +471,17 @@ def get_expirations(
             if weekly_sym:
 
                 day_of_week = DAYS_OF_WEEK[k]
-                rng         = date_range(i, j, freq = f"W-{DAYS_OF_WEEK[day_of_week]}")
+                rng         = date_range(i, j, freq = f"W-{day_of_week}")
 
                 for l in range(len(rng)):
 
                     weekly_exp = rng[l]
+
+                    if bom == months_ts[0] and weekly_exp <= monthly_exp:
+
+                        # no weekly expirations before the first monthly expiration
+
+                        continue
 
                     # skip weekly expiration if it is not on a business day or is the same as the monthly expiration...
                     # need to check:
@@ -489,14 +495,14 @@ def get_expirations(
                         # valid expiration
                         # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
 
-                        weekly_str = weekly_exp.strftime(DATE_FMT)
-                        weekly_sym = weekly_sym.replace("*", str(l + 1)) + monthly_exp.month + year
+                        weekly_str  = weekly_exp.strftime(DATE_FMT)
+                        weekly_sym_ = weekly_sym.replace("*", str(l + 1)) + MONTHS[monthly_exp.month] + year
 
                         res.append(
                             (
                                 weekly_str,
                                 "W",
-                                weekly_sym
+                                weekly_sym_
                             )
                         )
 

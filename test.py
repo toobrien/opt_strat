@@ -1,7 +1,12 @@
-from ast    import literal_eval
-from util   import get_expirations, get_records_by_contract
-from sys    import argv
-from time   import time
+from    ast         import literal_eval
+import  polars      as      pl
+from    util        import  get_expirations, get_records_by_contract
+from    sys         import  argv, path
+from    time        import  time
+
+path.append("..")
+
+from data.cat_df    import  cat_df
 
 
 def get_rec_test(
@@ -37,10 +42,47 @@ def get_expirations_test(
     pass
 
 
+def compare_expirations(
+    ul_symbol:  str,
+    start:      str,
+    end:        str,
+    opt_class:  str = None
+):
+
+    df = cat_df("opts", ul_symbol, start, end)
+
+    if opt_class:
+
+        df = df.filter(pl.col("name") == opt_class)
+    
+    rows = sorted(df.unique(["name", "expiry"]).rows(), key = lambda r: r[0])
+
+    cons = get_records_by_contract(ul_symbol, start, end)
+    exps = []
+
+    for _, recs in cons.items():
+
+        expirations = get_expirations(ul_symbol, recs)
+
+        exps.extend(expirations)
+
+    exps = sorted(exps, key = lambda r: r[0])
+
+    for row in rows:
+
+        print(f"{row[0]}\t{row[1]}")
+
+    for exp in exps:
+
+        print(f"{exp[0]}\t{exp[2]}")
+
+    pass
+
 
 TESTS = {
     0: get_rec_test,
-    1: get_expirations_test
+    1: get_expirations_test,
+    2: compare_expirations
 }
 
 
