@@ -336,6 +336,7 @@ DAYS_OF_WEEK = {
 }
 HOLIDAYS = USFederalHolidayCalendar.holidays(start = "1900-01-01", end = "2100-01-01")
 
+
 class base_rec(IntEnum):
 
     date    = 0
