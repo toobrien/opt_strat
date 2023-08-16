@@ -5,7 +5,12 @@ from    pandas                  import  bdate_range, date_range, DateOffset, Tim
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
 import  polars                  as      pl
+from    sys                     import  path
 from    typing                  import  List
+
+path.append("..")
+
+from    data.cat_df             import cat_df
 
 
 CONFIG      = loads(open("./config.json").read())
@@ -505,24 +510,21 @@ def get_records_by_contract(
     end:    str,
     trim:   bool = True         # trim most contracts without expiried options 
 ):
-    
-    filtered = DB.filter(
-        (pl.col("name") == symbol)  &
-        (pl.col("date") >= start)   & 
-        (pl.col("date") < end)
-    ).sort(
-        [ "date", "year", "month" ]
-    )
-    
-    recs = filtered.select(
-        [
-            "date",
-            "month",
-            "year",
-            "settle",
-            "dte"
-        ]
-    ).rows()
+
+    recs = cat_df(
+            "futs",
+            symbol, 
+            start, 
+            end
+        ).select(
+            [
+                "date",
+                "month",
+                "year",
+                "settle",
+                "dte"
+            ]
+        ).rows()
 
     cutoff = None
 
