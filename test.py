@@ -1,4 +1,5 @@
-from    ast         import literal_eval
+from    ast         import  literal_eval
+from    pandas      import  Timestamp
 import  polars      as      pl
 from    util        import  get_expirations, get_records_by_contract
 from    sys         import  argv, path
@@ -43,19 +44,28 @@ def get_expirations_test(
 
 
 def compare_expirations(
-    ul_symbol:  str,
     start:      str,
     end:        str,
-    opt_class:  str = None
+    ul_symbol:  str,
+    opt_class:  str     = None,
+    ref_db:     bool    = False
 ):
 
-    df = cat_df("opts", ul_symbol, start, end)
+    if ref_db:
+        
+        df = cat_df("opts", ul_symbol, start, end)
 
-    if opt_class:
+        if opt_class:
 
-        df = df.filter(pl.col("name") == opt_class)
-    
-    rows = sorted(df.unique(["name", "expiry"]).rows(), key = lambda r: r[0])
+            df = df.filter(pl.col("name") == opt_class)
+        
+        rows = sorted(df.unique(["name", "expiry"]).rows(), key = lambda r: r[0])
+
+        for row in rows:
+
+            print(f"{row[0]}\t{row[1]}\t{Timestamp(row[0]).day_of_week}")
+
+        print()
 
     cons = get_records_by_contract(ul_symbol, start, end)
     exps = []
@@ -64,17 +74,17 @@ def compare_expirations(
 
         expirations = get_expirations(ul_symbol, recs)
 
+        if opt_class:
+
+            expirations = [ e for e in expirations if opt_class in e[2] ]
+
         exps.extend(expirations)
 
     exps = sorted(exps, key = lambda r: r[0])
 
-    for row in rows:
-
-        print(f"{row[0]}\t{row[1]}")
-
     for exp in exps:
 
-        print(f"{exp[0]}\t{exp[2]}")
+        print(f"{exp[0]}\t{exp[2]}\t{Timestamp(exp[0]).day_of_week}")
 
     pass
 

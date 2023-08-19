@@ -1,6 +1,7 @@
 from    datetime                import  datetime
 from    enum                    import  IntEnum
 from    json                    import  loads
+from    math                    import  ceil
 from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
@@ -184,11 +185,11 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZW*" ],
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "H": (-4, -1),
-            "K": (-3, -1),
-            "N": (-3, -1),
-            "U": (-3, -1),
-            "Z": (-4, -1)
+            "H": (-5, -1),
+            "K": (-4, -1),
+            "N": (-4, -1),
+            "U": (-4, -1),
+            "Z": (-5, -1)
         },
         "m_sym_offset": 1
     },
@@ -461,8 +462,13 @@ def get_expirations(
         # last month:   from bom -> expiration
         # other months: all days in month
 
-        i = bom
-        j = eom if bom != months_ts[-1] else monthly_exp
+        i           = bom
+        j           = eom if bom != months_ts[-1] else monthly_exp
+        week1_start = i
+
+        while not BDay().is_on_offset(week1_start):
+
+            week1_start = week1_start + BDay()
 
         for k in range(len(weekly_syms)):
 
@@ -490,13 +496,14 @@ def get_expirations(
                     #   - some weekly expirations can be on the monthly expiration, not sure about rule
                     #   - some contracts have a special rule stating that weekly expirations do not occur on the *week* of the monthly expiration
 
-                    if  BDay().is_on_offset(weekly_exp) and weekly_exp != monthly_exp:
+                    if BDay().is_on_offset(weekly_exp) and weekly_exp != monthly_exp:
 
                         # valid expiration
                         # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
 
-                        weekly_str  = weekly_exp.strftime(DATE_FMT)
-                        weekly_sym_ = weekly_sym.replace("*", str(l + 1)) + MONTHS[monthly_exp.month] + year
+                        weekly_str      = weekly_exp.strftime(DATE_FMT)
+                        week_of_month   = str(int(ceil(((weekly_exp.day + week1_start.day) / 7.0))))
+                        weekly_sym_     = weekly_sym.replace("*", week_of_month) + MONTHS[monthly_exp.month] + year
 
                         res.append(
                             (
