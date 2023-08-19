@@ -43,7 +43,7 @@ def get_expirations_test(
     pass
 
 
-def compare_expirations(
+def check_expirations(
     start:      str,
     end:        str,
     ul_symbol:  str,
@@ -52,7 +52,7 @@ def compare_expirations(
 ):
 
     if ref_db:
-        
+
         df = cat_df("opts", ul_symbol, start, end)
 
         if opt_class:
@@ -84,7 +84,7 @@ def compare_expirations(
 
     for exp in exps:
 
-        print(f"{exp[0]}\t{exp[2]}\t{Timestamp(exp[0]).day_of_week}")
+        print(f"{exp[0]}\t{exp[2]}\t{Timestamp(exp[0]).day_of_week}\t{exp[3]}")
 
     pass
 
@@ -92,7 +92,7 @@ def compare_expirations(
 TESTS = {
     0: get_rec_test,
     1: get_expirations_test,
-    2: compare_expirations
+    2: check_expirations
 }
 
 

@@ -198,11 +198,11 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZC*" ],
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "H": (-4, -1),
-            "K": (-3, -1),
-            "N": (-3, -1),
-            "U": (-3, -1),
-            "Z": (-4, -1)
+            "H": (-5, -1),
+            "K": (-4, -1),
+            "N": (-4, -1),
+            "U": (-4, -1),
+            "Z": (-5, -1)
         },
         "m_sym_offset": 1
     },
@@ -368,6 +368,7 @@ def get_expirations(
     year        = str(recs[0][base_rec.year])[-1]
     offset      = dfn["m_sym_offset"]
     ul_exp      = Timestamp(recs[0][base_rec.date]) + DateOffset(days = recs[0][base_rec.dte])
+    ul_sym      = recs[0][base_rec.month] + str(recs[0][base_rec.year][-1])
     months_ts   = [ ul_exp + MonthBegin(i) for i in range(*dfn["ul_map"][recs[0][base_rec.month]]) ]
     monthly_exp = None
     weekly_exp  = None
@@ -442,15 +443,16 @@ def get_expirations(
         if bom != months_ts[0] or len(months_ts) == 1:
 
             monthly_str     = monthly_exp.strftime(DATE_FMT)
-            sym_month       = monthly_exp.month + offset
-            sym_month       = sym_month if sym_month <= 12 else sym_month - 12
-            monthly_sym_    = monthly_sym + MONTHS[sym_month] + year
+            adj_month       = monthly_exp.month + offset
+            sym_month       = adj_month if adj_month <= 12 else adj_month - 12
+            monthly_sym_    = monthly_sym + MONTHS[sym_month] + (year if adj_month <= 12 else str((int(year) + 1) % 10))
             
             res.append(
                 ( 
                     monthly_str, 
                     "M", 
-                    monthly_sym_
+                    monthly_sym_,
+                    ul_sym
                 )
             )
 
@@ -509,7 +511,8 @@ def get_expirations(
                             (
                                 weekly_str,
                                 "W",
-                                weekly_sym_
+                                weekly_sym_,
+                                ul_sym
                             )
                         )
 
