@@ -385,8 +385,6 @@ def get_expirations(
             # fourth last business day of the month
 
             monthly_exp = bdate_range(bom, eom, freq = "C")[-4]
-
-            res.append(monthly_exp)
         
         elif rule == "EOM-2BD-1FRI":
 
