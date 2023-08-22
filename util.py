@@ -397,10 +397,10 @@ def get_expirations(
 
         elif rule == "25TH-(6|7)BD":
 
-            # the 6th day prior to the 25th calendar day of the month, if business day; else, the 7th day prior
+            # 3 business days prior to the underlying futures' expiration date
 
-            monthly_exp = bom + DateOffset(days = 24) - 6 * BDay()
-            monthly_exp = monthly_exp if BDay().is_on_offset(monthly_exp) else monthly_exp - BDay()
+            ref         = bom + DateOffset(days = 24)
+            monthly_exp = ref - 6 * BDay() if BDay().is_on_offset(ref) else ref - 7 * BDay()
 
         elif rule == "BOM+10BD":
 
@@ -502,7 +502,8 @@ def get_expirations(
                         # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
 
                         weekly_str      = weekly_exp.strftime(DATE_FMT)
-                        week_of_month   = str(int(ceil(((weekly_exp.day + week1_start.day) / 7.0))))
+                        #week_of_month   = str(int(ceil(((weekly_exp.day + week1_start.day) / 7.0))))
+                        week_of_month   = str(l + 1)
                         weekly_sym_     = weekly_sym.replace("*", week_of_month) + MONTHS[monthly_exp.month] + year
 
                         res.append(
