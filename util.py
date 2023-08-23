@@ -108,12 +108,12 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "exp_rule":     "BOM+1FRI",
         "ul_map":       {
-            "G": (-2, 0),
-            "J": (-2, 0),
-            "M": (-2, 0),
-            "Q": (-2, 0),
-            "V": (-2, 0),
-            "Z": (-2, 0)
+            "G": (-3, 0),
+            "J": (-3, 0),
+            "M": (-3, 0),
+            "Q": (-3, 0),
+            "V": (-3, 0),
+            "Z": (-3, 0)
         },
         "m_sym_offset": 0
     },
@@ -412,7 +412,7 @@ def get_expirations(
 
             # first friday of month
 
-            monthly_exp = date_range(bom, eom, freq = "W-FRI")[1]
+            monthly_exp = date_range(bom, eom, freq = "W-FRI")[0]
 
         elif rule == "EOM-(1|2)THU":
 
