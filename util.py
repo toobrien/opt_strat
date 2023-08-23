@@ -99,7 +99,7 @@ OPT_DEFS    = {
             "Q": (-1, 0),
             "U": (-1, 0),
             "V": (-1, 0),
-            "Z": (-1, 0)
+            "X": (-1, 0)
         },
         "m_sym_offset": 0
     },
@@ -421,7 +421,7 @@ def get_expirations(
             rng         = date_range(bom, eom, freq = "W-THU")
             monthly_exp = rng[-1] if BDay().is_on_offset(rng[-1]) else rng[-2]
 
-        elif monthly_exp == "EOM-(4|5)BD":
+        elif rule == "EOM-(4|5)BD":
 
             # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
 
