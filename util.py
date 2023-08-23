@@ -138,14 +138,14 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "F": (-2, -1),
-            "H": (-3, -1),
-            "K": (-3, -1),
-            "N": (-3, -1),
-            "Q": (-2, -1),
-            "U": (-2, -1),
-            "V": (-2, -1),
-            "Z": (-3, -1)
+            "F": (-3, -1),
+            "H": (-4, -1),
+            "K": (-4, -1),
+            "N": (-4, -1),
+            "Q": (-3, -1),
+            "U": (-3, -1),
+            "V": (-3, -1),
+            "Z": (-4, -1)
         },
         "m_sym_offset": 1
     },
@@ -154,14 +154,14 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "F": (-2, -1),
-            "H": (-3, -1),
-            "K": (-3, -1),
-            "N": (-3, -1),
-            "Q": (-2, -1),
-            "U": (-2, -1),
-            "V": (-2, -1),
-            "Z": (-3, -1)
+            "F": (-3, -1),
+            "H": (-4, -1),
+            "K": (-4, -1),
+            "N": (-4, -1),
+            "Q": (-3, -1),
+            "U": (-3, -1),
+            "V": (-3, -1),
+            "Z": (-4, -1)
         },
         "m_sym_offset": 1
     },
@@ -170,13 +170,13 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZS*" ],
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
-            "F": (-2, -1),
-            "H": (-3, -1),
-            "K": (-3, -1),
-            "N": (-3, -1),
-            "Q": (-2, -1),
-            "U": (-2, -1),
-            "X": (-3, -1)
+            "F": (-3, -1),
+            "H": (-4, -1),
+            "K": (-4, -1),
+            "N": (-4, -1),
+            "Q": (-3, -1),
+            "U": (-3, -1),
+            "X": (-4, -1)
         },
         "m_sym_offset": 1
     },
@@ -388,7 +388,7 @@ def get_expirations(
         
         elif rule == "EOM-2BD-1FRI":
 
-            # first friday prior to the second to last business day of the month;
+            # first friday prior to the second last business day of the month;
             # if this is not a business day, then the day prior
 
             cutoff      = bdate_range(bom, eom)[-3]
@@ -406,7 +406,7 @@ def get_expirations(
 
             # tenth business day of the month
 
-            monthly_exp = bdate_range(bom, eom, freq = "C")[10]
+            monthly_exp = bdate_range(bom, eom, freq = "C")[9]
 
         elif rule == "BOM+1FRI":
 
