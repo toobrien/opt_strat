@@ -79,10 +79,10 @@ OPT_DEFS    = {
         "exp_rule":     "EOM-(4|5)BD",
         "ul_map": {
             "G": (-4, -1),
-            "J": (-3, -1),
-            "M": (-3, -1),
-            "Q": (-3, -1),
-            "V": (-3, -1),
+            "J": (-4, -1),
+            "M": (-4, -1),
+            "Q": (-4, -1),
+            "V": (-4, -1),
             "Z": (-4, -1)
         },
         "m_sym_offset": 1
@@ -361,6 +361,7 @@ def get_expirations(
     recs:   List[base_rec]
 ):
 
+    res         = []
     dfn         = OPT_DEFS[sym]
     rule        = dfn["exp_rule"]
     monthly_sym = dfn["monthly_sym"]
@@ -369,10 +370,17 @@ def get_expirations(
     offset      = dfn["m_sym_offset"]
     ul_exp      = Timestamp(recs[0][base_rec.date]) + DateOffset(days = recs[0][base_rec.dte])
     ul_sym      = recs[0][base_rec.month] + str(recs[0][base_rec.year][-1])
-    months_ts   = [ ul_exp + MonthBegin(i) for i in range(*dfn["ul_map"][recs[0][base_rec.month]]) ]
+    ul_month    = recs[0][base_rec.month]
+
+    if ul_month not in dfn["ul_map"]:
+        
+        # some futures have contracts with no options, such as GC
+        
+        return res
+
+    months_ts   = [ ul_exp + MonthBegin(i) for i in range(*dfn["ul_map"][ul_month]) ]
     monthly_exp = None
     weekly_exp  = None
-    res         = []
 
     for bom in months_ts:
 
@@ -426,7 +434,7 @@ def get_expirations(
             # 4th last business day of the month, unless friday (or holiday); else 5th last business day of month
 
             monthly_exp = bdate_range(bom, eom, freq = "C")[-4]
-            monthly_exp = monthly_exp if monthly_exp.day_of_week == 4 else monthly_exp - BDay()
+            monthly_exp = monthly_exp if monthly_exp.day_of_week != 4 else monthly_exp - BDay()
 
         elif rule == "BOM+2FRI<3WED":
 
