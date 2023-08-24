@@ -506,8 +506,7 @@ def get_expirations(
 
                     weekly_exp = rng[l]
 
-                    # check validity of weekly expiration
-                    # assume weekly is business day -- no holidays implemented yet
+                    # check validity of weekly expiration (assume business day; no holidays implemented yet)
 
                     if bom == months_ts[0]:
                         
