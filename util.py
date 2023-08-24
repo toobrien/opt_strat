@@ -1,7 +1,6 @@
 from    datetime                import  datetime
 from    enum                    import  IntEnum
 from    json                    import  loads
-from    math                    import  ceil
 from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
@@ -26,6 +25,7 @@ OPT_DEFS    = {
     "6E": {
         "monthly_sym":  "EUU",
         "weekly_syms":  [ "MO*", "TU*", "WE*", "SU*", "*EU" ],
+        "wk_on_month":  False,
         "exp_rule":     "BOM+2FRI<3WED",
         "ul_map":       {
             "H": (-4, 0),
@@ -38,6 +38,7 @@ OPT_DEFS    = {
     "6J": {
         "monthly_sym":  "JPU",
         "weekly_syms":  [ "MJ*", "TJ*", "WJ*", "SJ*", "*JY" ],
+        "wk_on_month":  False,
         "exp_rule":     "BOM+2FRI<3WED",
         "ul_map":       {
             "H": (-4, 0),
@@ -50,6 +51,7 @@ OPT_DEFS    = {
     "HG": {
         "monthly_sym":  "HXE",
         "weekly_syms":  [ "H*M", None, "H*W", None, "H*E" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
         "ul_map": {
             "H": (-5, -1),
@@ -63,6 +65,7 @@ OPT_DEFS    = {
     "SI": {
         "monthly_sym":  "SO",
         "weekly_syms":  [ "M*S", None, "W*S", None, "SO*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
         "ul_map": {
             "H": (-5, -1),
@@ -76,6 +79,7 @@ OPT_DEFS    = {
     "GC": {
         "monthly_sym":  "OG",
         "weekly_syms":  [ "G*M", None, "G*W", None, "OG*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
         "ul_map": {
             "G": (-4, -1),
@@ -90,6 +94,7 @@ OPT_DEFS    = {
     "GF": {
         "monthly_sym":  "GF",
         "weekly_syms":  [ None, None, None, None, None ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-(1|2)THU",
         "ul_map":       {
             "F": (-1, 0),
@@ -106,6 +111,7 @@ OPT_DEFS    = {
     "LE": {
         "monthly_sym":  "LE",
         "weekly_syms":  [ None, None, None, None, None ],
+        "wk_on_month":  False,
         "exp_rule":     "BOM+1FRI",
         "ul_map":       {
             "G": (-3, 0),
@@ -120,6 +126,7 @@ OPT_DEFS    = {
     "HE": {
         "monthly_sym":  "HE",
         "weekly_syms":  [ None, None, None, None, None ],
+        "wk_on_month":  False,
         "exp_rule":     "BOM+10BD",
         "ul_map":       {
             "G": (-1, 0),
@@ -136,6 +143,7 @@ OPT_DEFS    = {
     "ZL": {
         "monthly_sym":  "OZL",
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "F": (-3, -1),
@@ -152,6 +160,7 @@ OPT_DEFS    = {
     "ZM": {
         "monthly_sym":  "OZM",
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "F": (-3, -1),
@@ -168,6 +177,7 @@ OPT_DEFS    = {
     "ZS": {
         "monthly_sym":  "OZS",
         "weekly_syms":  [ None, None, None, None, "ZS*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "F": (-3, -1),
@@ -183,6 +193,7 @@ OPT_DEFS    = {
     "ZW": {
         "monthly_sym":  "OZW",
         "weekly_syms":  [ None, None, None, None, "ZW*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "H": (-5, -1),
@@ -196,6 +207,7 @@ OPT_DEFS    = {
     "ZC": {
         "monthly_sym":  "OZC",
         "weekly_syms":  [ None, None, None, None, "ZC*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "H": (-5, -1),
@@ -209,6 +221,7 @@ OPT_DEFS    = {
     "ZB": {
         "monthly_sym":  "OZB",
         "weekly_syms":  [ None, None, "WB*", None, "ZB*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "H": (-4, 0),
@@ -221,6 +234,7 @@ OPT_DEFS    = {
     "ZN": {
         "monthly_sym":  "OZN",
         "weekly_syms":  [ None, None, "WY*", None, "ZN*" ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
         "ul_map":       {
             "H": (-4, 0),
@@ -233,6 +247,7 @@ OPT_DEFS    = {
     "RB": {
         "monthly_sym":  "OB",
         "weekly_syms":  [ None, None, None, None, None ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
             "F": (-1, 0),
@@ -253,6 +268,7 @@ OPT_DEFS    = {
     "HO": {
         "monthly_sym":  "OH",
         "weekly_syms":  [ None, None, None, None, None ],
+        "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
             "F": (-1, 0),
@@ -273,6 +289,7 @@ OPT_DEFS    = {
     "CL": {
         "monthly_sym":  "LO",
         "weekly_syms":  [ "ML*", None, "WL*", None, "LO*" ],
+        "wk_on_month":  True,
         "exp_rule":     "25TH-(6|7)BD",
         "ul_map":       {
             "F": (-2, 0),
@@ -293,6 +310,7 @@ OPT_DEFS    = {
     "NG": {
         "monthly_sym":  "LNE",
         "weekly_syms":  [ None, None, None, None, None ],   # not enough volume / liquidity to trade
+        "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
         "ul_map":       {
             "F": (-1, 0),
@@ -366,6 +384,7 @@ def get_expirations(
     rule        = dfn["exp_rule"]
     monthly_sym = dfn["monthly_sym"]
     weekly_syms = dfn["weekly_syms"]
+    wk_on_month = dfn["wk_on_month"]
     year        = str(recs[0][base_rec.year])[-1]
     offset      = dfn["m_sym_offset"]
     ul_exp      = Timestamp(recs[0][base_rec.date]) + DateOffset(days = recs[0][base_rec.dte])
@@ -472,11 +491,6 @@ def get_expirations(
 
         i           = bom
         j           = eom if bom != months_ts[-1] else monthly_exp
-        week1_start = i
-
-        while not BDay().is_on_offset(week1_start):
-
-            week1_start = week1_start + BDay()
 
         for k in range(len(weekly_syms)):
 
@@ -491,37 +505,44 @@ def get_expirations(
 
                     weekly_exp = rng[l]
 
-                    if bom == months_ts[0] and weekly_exp <= monthly_exp:
+                    # check validity of weekly expiration
+                    # assume weekly is business day -- no holidays implemented yet
 
-                        # no weekly expirations before the first monthly expiration
+                    if bom == months_ts[0]:
+                        
+                        if wk_on_month:
 
-                        continue
+                            if weekly_exp < monthly_exp:
 
-                    # skip weekly expiration if it is not on a business day or is the same as the monthly expiration...
-                    # need to check:
-                    #
-                    #   - shift weekly expiration to nearby business day? how?
-                    #   - some weekly expirations can be on the monthly expiration, not sure about rule
-                    #   - some contracts have a special rule stating that weekly expirations do not occur on the *week* of the monthly expiration
+                                continue
 
-                    if BDay().is_on_offset(weekly_exp) and weekly_exp != monthly_exp:
+                        else:
 
-                        # valid expiration
-                        # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
+                            if weekly_exp <= monthly_exp:
 
-                        weekly_str      = weekly_exp.strftime(DATE_FMT)
-                        #week_of_month   = str(int(ceil(((weekly_exp.day + week1_start.day) / 7.0))))
-                        week_of_month   = str(l + 1)
-                        weekly_sym_     = weekly_sym.replace("*", week_of_month) + MONTHS[monthly_exp.month] + year
+                                continue
+                    
+                    elif bom == months_ts[-1]:
 
-                        res.append(
-                            (
-                                weekly_str,
-                                "W",
-                                weekly_sym_,
-                                ul_sym
-                            )
+                        if weekly_exp >= monthly_exp:
+
+                            continue
+
+                    # valid expiration
+                    # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
+
+                    weekly_str      = weekly_exp.strftime(DATE_FMT)
+                    week_of_month   = str(l + 1)
+                    weekly_sym_     = weekly_sym.replace("*", week_of_month) + MONTHS[monthly_exp.month] + year
+
+                    res.append(
+                        (
+                            weekly_str,
+                            "W",
+                            weekly_sym_,
+                            ul_sym
                         )
+                    )
 
     res = sorted(res, key = lambda r: r[0])
 
