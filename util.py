@@ -12,7 +12,6 @@ path.append("..")
 from    data.cat_df             import cat_df
 
 
-CONFIG      = loads(open("./config.json").read())
 DATE_FMT    = "%Y-%m-%d"
 OPT_DEFS    = {
 
