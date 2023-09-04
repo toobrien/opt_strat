@@ -1,6 +1,5 @@
 from    datetime                import  datetime
 from    enum                    import  IntEnum
-from    json                    import  loads
 from    pandas                  import  bdate_range, date_range, DateOffset, Timestamp
 from    pandas.tseries.holiday  import  USFederalHolidayCalendar
 from    pandas.tseries.offsets  import  BDay, MonthBegin, MonthEnd
