@@ -26,6 +26,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "MO*", "TU*", "WE*", "SU*", "*EU" ],
         "wk_on_month":  False,
         "exp_rule":     "BOM+2FRI<3WED",
+        "exp_time":     "07:00:00",
         "ul_map":       {
             "H": (-4, 0),
             "M": (-4, 0),
@@ -39,6 +40,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "MJ*", "TJ*", "WJ*", "SJ*", "*JY" ],
         "wk_on_month":  False,
         "exp_rule":     "BOM+2FRI<3WED",
+        "exp_time":     "07:00:00",
         "ul_map":       {
             "H": (-4, 0),
             "M": (-4, 0),
@@ -52,6 +54,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "H*M", None, "H*W", None, "H*E" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
+        "exp_time":     "14:00:00",
         "ul_map": {
             "H": (-5, -1),
             "K": (-4, -1),
@@ -66,6 +69,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "M*S", None, "W*S", None, "SO*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
+        "exp_time":     "14:00:00",
         "ul_map": {
             "H": (-5, -1),
             "K": (-4, -1),
@@ -80,6 +84,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "G*M", None, "G*W", None, "OG*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-(4|5)BD",
+        "exp_time":     "14:00:00",
         "ul_map": {
             "G": (-4, -1),
             "J": (-4, -1),
@@ -95,6 +100,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-(1|2)THU",
+        "exp_time":     "11:05:00",
         "ul_map":       {
             "F": (-1, 0),
             "H": (-1, 0),
@@ -112,6 +118,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "wk_on_month":  False,
         "exp_rule":     "BOM+1FRI",
+        "exp_time":     "11:05:00",
         "ul_map":       {
             "G": (-3, 0),
             "J": (-3, 0),
@@ -127,6 +134,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "wk_on_month":  False,
         "exp_rule":     "BOM+10BD",
+        "exp_time":     "11:05:00",
         "ul_map":       {
             "G": (-1, 0),
             "J": (-1, 0),
@@ -144,6 +152,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "11:20:00",
         "ul_map":       {
             "F": (-3, -1),
             "H": (-4, -1),
@@ -161,6 +170,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not tradeable on IBKR
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "11:20:00",
         "ul_map":       {
             "F": (-3, -1),
             "H": (-4, -1),
@@ -178,6 +188,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZS*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "11:20:00",
         "ul_map":       {
             "F": (-3, -1),
             "H": (-4, -1),
@@ -194,6 +205,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZW*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "11:20:00",
         "ul_map":       {
             "H": (-5, -1),
             "K": (-4, -1),
@@ -208,6 +220,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, "ZC*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "11:20:00",
         "ul_map":       {
             "H": (-5, -1),
             "K": (-4, -1),
@@ -222,6 +235,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, "WB*", None, "ZB*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "H": (-4, 0),
             "M": (-4, 0),
@@ -235,6 +249,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, "WY*", None, "ZN*" ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-2BD-1FRI",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "H": (-4, 0),
             "M": (-4, 0),
@@ -248,6 +263,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "F": (-1, 0),
             "G": (-1, 0),
@@ -269,6 +285,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],
         "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "F": (-1, 0),
             "G": (-1, 0),
@@ -290,6 +307,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ "ML*", None, "WL*", None, "LO*" ],
         "wk_on_month":  True,
         "exp_rule":     "25TH-(6|7)BD",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "F": (-2, 0),
             "G": (-2, 0),
@@ -311,6 +329,7 @@ OPT_DEFS    = {
         "weekly_syms":  [ None, None, None, None, None ],   # not enough volume / liquidity to trade
         "wk_on_month":  False,
         "exp_rule":     "EOM-4BD",
+        "exp_time":     "14:00:00",
         "ul_map":       {
             "F": (-1, 0),
             "G": (-1, 0),
@@ -381,6 +400,7 @@ def get_expirations(
     res         = []
     dfn         = OPT_DEFS[sym]
     rule        = dfn["exp_rule"]
+    exp_time    = dfn["exp_time"]
     monthly_sym = dfn["monthly_sym"]
     weekly_syms = dfn["weekly_syms"]
     wk_on_month = dfn["wk_on_month"]
@@ -466,7 +486,7 @@ def get_expirations(
 
         if bom != months_ts[0] or len(months_ts) == 1:
 
-            monthly_str     = monthly_exp.strftime(DATE_FMT)
+            monthly_str     = f'{monthly_exp.strftime(DATE_FMT)}T{exp_time}'
             adj_month       = monthly_exp.month + offset
             sym_month       = adj_month if adj_month <= 12 else adj_month - 12
             monthly_sym_    = monthly_sym + MONTHS[sym_month] + (year if adj_month <= 12 else str((int(year) + 1) % 10))
@@ -529,7 +549,7 @@ def get_expirations(
                     # valid expiration
                     # assumption: weekly month codes are not offset (i.e. always equal to the month in which they expire)
 
-                    weekly_str      = weekly_exp.strftime(DATE_FMT)
+                    weekly_str      = f'{weekly_exp.strftime(DATE_FMT)}T{exp_time}'
                     week_of_month   = str(l + 1)
                     weekly_sym_     = weekly_sym.replace("*", week_of_month) + MONTHS[monthly_exp.month] + year
 
@@ -600,3 +620,10 @@ def get_records_by_contract(
             res = tmp
 
     return res
+
+
+def get_indexed_opt_series(
+    symbol: str
+):
+    
+    pass
