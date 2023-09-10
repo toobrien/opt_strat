@@ -623,7 +623,12 @@ def get_records_by_contract(
 
 
 def get_indexed_opt_series(
-    symbol: str
+    symbol:     str,
+    cur_time:   str,
+    expiration: str,
+    start_date: str,
+    end_date:   str,
+    trim:       bool = True         # trim most contracts without expiried options 
 ):
     
     pass
