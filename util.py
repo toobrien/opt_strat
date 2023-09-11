@@ -617,7 +617,7 @@ def get_records_by_contract(
 
                 tmp[contract_id] = recs
 
-            res = tmp
+        res = tmp
 
     return res
 
